@@ -51,3 +51,7 @@ would serve a different dataset.
 State is not persisted. Uploaded CSVs and records produced by the live intake
 stream are lost whenever the container restarts or the host puts it to sleep;
 it always boots back to the bundled dataset.
+
+`render.yaml` targets Render's free instance, which sleeps after 15 minutes
+without traffic. The first request after that waits for the container to boot
+and retrain, so open the URL a couple of minutes before showing it to anyone.

@@ -1,0 +1,23 @@
+# Render Blueprint. Create the service with New > Blueprint and point Render at
+# this repo, or create a Web Service by hand and mirror these settings.
+services:
+  - type: web
+    name: processiq
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PROCESSIQ_USER
+        value: admin
+      # Prompted for at blueprint creation and stored by Render, never
+      # committed. This must be set: app.py falls back to a published default
+      # and this repository is public.
+      - key: PROCESSIQ_PASSWORD
+        sync: false
+      # Render generates this once and keeps it. A rotating key would
+      # invalidate every signed session on each deploy.
+      - key: PROCESSIQ_SECRET
+        generateValue: true
