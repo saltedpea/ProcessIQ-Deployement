@@ -40,7 +40,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("PROCESSIQ_SECRET", "processiq-control-tower-dev-key")
 ACCOUNT_USER = os.environ.get("PROCESSIQ_USER", "admin")
 ACCOUNT_PASSWORD = os.environ.get("PROCESSIQ_PASSWORD", "processiq")
-PUBLIC_ENDPOINTS = {"login", "static"}
+PUBLIC_ENDPOINTS = {"login", "static", "healthz"}
 
 STATE = {
     "df": None,
@@ -71,6 +71,17 @@ def require_login():
     if request.path.startswith("/api/"):
         return jsonify({"error": "sign in required"}), 401
     return redirect(url_for("login", next=request.path))
+
+
+@app.route("/healthz")
+def healthz():
+    """Unauthenticated liveness probe.
+
+    Container hosts health-check "/", which the auth gate answers with a 302.
+    Some treat that as a failure, so give them a plain 200 to aim at.
+    """
+    ready = STATE["df"] is not None and STATE["model"] is not None
+    return jsonify({"status": "ok" if ready else "starting"}), (200 if ready else 503)
 
 
 @app.route("/login", methods=["GET", "POST"])
